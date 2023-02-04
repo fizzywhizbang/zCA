@@ -69,7 +69,7 @@ func showServerForm(app *widgets.QApplication, window *widgets.QMainWindow) *wid
 	cancelButton.ConnectClicked(func(checked bool) {
 		window.Close()
 		GlobalForm = ""
-		gui(app)
+		gui(app, window)
 	})
 	addButton.ConnectClicked(func(checked bool) {
 		//check if file exists
@@ -115,7 +115,9 @@ func showServerForm(app *widgets.QApplication, window *widgets.QMainWindow) *wid
 		} else {
 			GlobalForm = ""
 			window.Close()
-			gui(app)
+			vlayout2 := gui(app, window)
+			vlayout2.AddLayout(listCerts(app, window), 0)
+			GlobalForm = "LC"
 		}
 		// }
 	})

@@ -32,13 +32,30 @@ func fileExists(filename string) bool {
 }
 
 func getCas() []string {
-	files, err := ioutil.ReadDir("root/")
+	files, err := os.ReadDir("root/")
 	if err != nil {
 		log.Fatal(err)
 	}
 	list := []string{}
 	for _, file := range files {
 		if !strings.Contains(file.Name(), "-key") && !file.IsDir() && !strings.Contains(file.Name(), "DS_Store") {
+
+			list = append(list, strings.Replace(file.Name(), ".pem", "", -1))
+		}
+
+	}
+	return list
+}
+
+func getCerts() []string {
+	files, err := os.ReadDir("crt/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	list := []string{}
+	for _, file := range files {
+		if !strings.Contains(file.Name(), "DS_Store") {
 
 			list = append(list, strings.Replace(file.Name(), ".pem", "", -1))
 		}
