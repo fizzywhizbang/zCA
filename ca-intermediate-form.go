@@ -13,6 +13,11 @@ func showCAIntForm(app *widgets.QApplication, window *widgets.QMainWindow) *widg
 	formLayout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
 	label := widgets.NewQLabel2("Create New Intermediate Certificate Authority", nil, 0)
 	formLayout.AddWidget(label)
+
+	selector := widgets.NewQComboBox(nil)
+	selector.AddItems(getCas())
+	formLayout.AddRow3("Select Certificate Authority: ", selector)
+
 	C := widgets.NewQLineEdit(nil)
 	C.SetPlaceholderText("US")
 	formLayout.AddRow3("Country (two letter): ", C)
@@ -56,7 +61,7 @@ func showCAIntForm(app *widgets.QApplication, window *widgets.QMainWindow) *widg
 	cancelButton.SetText("Cancel")
 	optionGroup.AddWidget(cancelButton, 0, 0)
 
-	formLayout.InsertRow6(8, optionGroup)
+	formLayout.InsertRow6(9, optionGroup)
 
 	cancelButton.ConnectClicked(func(checked bool) {
 		window.Close()
@@ -71,8 +76,8 @@ func showCAIntForm(app *widgets.QApplication, window *widgets.QMainWindow) *widg
 				widgets.QMessageBox_Critical(nil, "error", "A CA by that name already exists", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 			} else {
 				//create new ca
-				caKey := config.RootDIR + "/" + GlobalCert + "-key.pem"
-				caCert := config.RootDIR + "/" + GlobalCert + ".pem"
+				caKey := config.RootDIR + "/" + selector.CurrentText() + "-key.pem"
+				caCert := config.RootDIR + "/" + selector.CurrentText() + ".pem"
 
 				issuer, err := getIssuer(caKey, caCert)
 				if err != nil {

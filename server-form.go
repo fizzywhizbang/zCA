@@ -15,6 +15,11 @@ func showServerForm(app *widgets.QApplication, window *widgets.QMainWindow) *wid
 	formLayout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
 	label := widgets.NewQLabel2("Create New Server or Client Certificate", nil, 0)
 	formLayout.AddWidget(label)
+
+	selector := widgets.NewQComboBox(nil)
+	selector.AddItems(getCas())
+	formLayout.AddRow3("Select Certificate Authority: ", selector)
+
 	C := widgets.NewQLineEdit(nil)
 	C.SetPlaceholderText("US")
 	formLayout.AddRow3("Country (two letter): ", C)
@@ -75,8 +80,8 @@ func showServerForm(app *widgets.QApplication, window *widgets.QMainWindow) *wid
 	})
 	addButton.ConnectClicked(func(checked bool) {
 		//check if file exists
-		caKey := config.RootDIR + "/" + GlobalCert + "-key.pem"
-		caCert := config.RootDIR + "/" + GlobalCert + ".pem"
+		caKey := config.RootDIR + "/" + selector.CurrentText() + "-key.pem"
+		caCert := config.RootDIR + "/" + selector.CurrentText() + ".pem"
 
 		issuer, err := getIssuer(caKey, caCert)
 		if err != nil {

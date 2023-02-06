@@ -9,10 +9,16 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
-func showCertKey(file string, config ZcaConfig, app *widgets.QApplication) {
+func showCertKey(file, certtype string, config ZcaConfig, app *widgets.QApplication) {
 
 	fileCert := config.CertDir + "/" + file + "/" + file + "cert.pem"
 	fileKey := config.CertDir + "/" + file + "/" + file + "-key.pem"
+
+	if certtype == "root" {
+		fileCert = config.RootDIR + "/" + file + ".pem"
+		fileKey = config.RootDIR + "/" + file + "-key.pem"
+	}
+
 	cert, err := os.ReadFile(fileCert)
 	if err != nil {
 		fmt.Println("unable to read %s", fileCert)

@@ -49,9 +49,26 @@ func getCas() []string {
 	return list
 }
 
-func getCerts() []string {
+func getCerts(dir string) []string {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	list := []string{}
+	for _, file := range files {
+		if !strings.Contains(file.Name(), "DS_Store") && !strings.Contains(file.Name(), "key") {
+
+			list = append(list, strings.Replace(file.Name(), ".pem", "", -1))
+		}
+
+	}
+	return list
+}
+
+func getCACerts() []string {
 	config := ConfigParser()
-	files, err := os.ReadDir(config.CertDir)
+	files, err := os.ReadDir(config.RootDIR)
 	if err != nil {
 		log.Fatal(err)
 	}

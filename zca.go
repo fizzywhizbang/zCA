@@ -59,18 +59,12 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 	label := widgets.NewQLabel2("Select CA", nil, 0)
 	toolbar.AddWidget(label)
 
-	selector := widgets.NewQComboBox(nil)
-	selector.AddItems(getCas())
-	toolbar.AddWidget(selector)
-
-	toolbar.AddSeparator()
-
 	newSelector := widgets.NewQComboBox(nil)
-	items := []string{"Select Action", "New Root", "New Intermediate", "New Server/Client"}
+	items := []string{"Select Action", "New Root", "New Intermediate", "New Server/Client", "List Certificates", "List CA Certificates"}
 	newSelector.AddItems(items)
 
 	newSelector.ConnectCurrentTextChanged(func(text string) {
-		GlobalCert = selector.CurrentText()
+
 		if text == "New Root" {
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
@@ -90,58 +84,33 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 			vlayout2.AddLayout(showServerForm(app, window), 0)
 			GlobalForm = "New Server/Client"
 		}
+
+		if text == "List Certificates" {
+			centralWidget.DeleteLater()
+			vlayout2 := mkgui(app, window)
+			vlayout2.AddLayout(listCerts(app, window), 0)
+			GlobalForm = text
+		}
+		if text == "List CA Certificates" {
+			centralWidget.DeleteLater()
+			vlayout2 := mkgui(app, window)
+			vlayout2.AddLayout(listCACerts(app, window), 0)
+			GlobalForm = text
+		}
 		window.Show()
 	})
 	toolbar.AddWidget(newSelector)
 
-	// newCA := widgets.NewQPushButton2("New Root", nil)
-	// toolbar.AddWidget(newCA)
-	// newCA.ConnectClicked(func(checked bool) {
-	// 	if GlobalForm != "CA" {
+	// showCerts := widgets.NewQPushButton2("List Certs", nil)
+	// toolbar.AddWidget(showCerts)
+	// showCerts.ConnectClicked(func(checked bool) {
+	// 	if GlobalForm != "LC" {
 	// 		centralWidget.DeleteLater()
 	// 		vlayout2 := mkgui(app, window)
-	// 		vlayout2.AddLayout(showCAForm(app, window), 0)
-	// 		GlobalForm = "CA"
-	// 	}
-
-	// 	window.Show()
-	// })
-
-	// newIntermediate := widgets.NewQPushButton2("New Intermediate", nil)
-	// toolbar.AddWidget(newIntermediate)
-	// newIntermediate.ConnectClicked(func(checked bool) {
-	// 	if GlobalForm != "ICA" {
-	// 		centralWidget.DeleteLater()
-	// 		vlayout2 := mkgui(app, window)
-	// 		vlayout2.AddLayout(showCAIntForm(app, window), 0)
-	// 		GlobalForm = "ICA"
-	// 	}
-
-	// 	window.Show()
-	// })
-
-	// serverCert := widgets.NewQPushButton2("New Server Cert", nil)
-	// toolbar.AddWidget(serverCert)
-	// serverCert.ConnectClicked(func(checked bool) {
-	// 	GlobalCert = selector.CurrentText()
-	// 	if GlobalForm != "SC" {
-	// 		centralWidget.DeleteLater()
-	// 		vlayout2 := mkgui(app, window)
-	// 		vlayout2.AddLayout(showServerForm(app, window), 0)
-	// 		GlobalForm = "SC"
+	// 		vlayout2.AddLayout(listCerts(app, window), 0)
+	// 		GlobalForm = "LC"
 	// 	}
 	// })
-
-	showCerts := widgets.NewQPushButton2("List Certs", nil)
-	toolbar.AddWidget(showCerts)
-	showCerts.ConnectClicked(func(checked bool) {
-		if GlobalForm != "LC" {
-			centralWidget.DeleteLater()
-			vlayout2 := mkgui(app, window)
-			vlayout2.AddLayout(listCerts(app, window), 0)
-			GlobalForm = "LC"
-		}
-	})
 
 	showConfig := widgets.NewQPushButton2("Config", nil)
 	toolbar.AddWidget(showConfig)

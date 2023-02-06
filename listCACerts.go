@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -11,7 +12,7 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
-func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBoxLayout {
+func listCACerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBoxLayout {
 	config := ConfigParser()
 	verticalLayout := widgets.NewQVBoxLayout()
 
@@ -30,11 +31,14 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 	treeWidget.Header()
 	treeWidget.SetHeaderLabels([]string{"Certificate", "Not Before", "Not After"})
 
-	certs := getCerts(config.CertDir)
+	certs := getCerts(config.RootDIR)
 
 	for _, val := range certs {
-		file := config.CertDir + "/" + val + "/" + val + "cert.pem"
+		file := config.RootDIR + "/" + val + ".pem"
+		fmt.Println(file)
 		notBefore, notAfter := readDates(file)
+		// notBefore := ""
+		// notAfter := ""
 
 		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{val, notBefore, notAfter}, 0)
 		treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(val))
@@ -42,7 +46,7 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 	}
 	treeWidget.ConnectDoubleClicked(func(index *core.QModelIndex) {
 		certName := treeWidget.CurrentItem().Text(0)
-		showCert(certName, "cert", config, app)
+		showCert(certName, "root", config, app)
 
 	})
 	treeWidget.ResizeColumnToContents(1)
@@ -51,13 +55,13 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 
 	treeWidget.ConnectContextMenuEvent(func(event *gui.QContextMenuEvent) {
 		certName := treeWidget.CurrentItem().Text(0)
-		contextMenu(certName, config, window, app, event)
+		contextMenu2(certName, config, window, app, event)
 	})
 	return verticalLayout
 
 }
 
-func readDates(file string) (string, string) {
+func readDates2(file string) (string, string) {
 	// Read and parse the PEM certificate file
 	pemData, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -77,14 +81,14 @@ func readDates(file string) (string, string) {
 
 }
 
-func contextMenu(certName string, config ZcaConfig, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
+func contextMenu2(certName string, config ZcaConfig, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
 	menu := widgets.NewQMenu(w)
 
 	menu.AddAction("View Certificate Info").ConnectTriggered(func(checked bool) {
-		showCert(certName, "cert", config, app)
+		showCert(certName, "root", config, app)
 	})
 	menu.AddAction("View Certificate and Key").ConnectTriggered(func(checked bool) {
-		showCertKey(certName, "cert", config, app)
+		showCertKey(certName, "root", config, app)
 	})
 
 	menu.Exec2(event.GlobalPos().QPoint_PTR(), nil)
