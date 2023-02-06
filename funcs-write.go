@@ -115,8 +115,55 @@ func makeRootCert(key crypto.Signer, filename, caname string, C, S, L, O, OU []s
 	return x509.ParseCertificate(der)
 }
 
-func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []string) (*x509.Certificate, error) {
-	var cnFolder = "crt/" + strings.Replace(cn, "*", "_", -1)
+func intermediate(iss *issuer, cn string, y int, C, S, L, O, OU []string, config ZcaConfig) (*x509.Certificate, error) {
+	key, err := makeKey(fmt.Sprintf("%s/%s-key.pem", config.RootDIR, cn))
+	if err != nil {
+		return nil, err
+	}
+	serial, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
+	if err != nil {
+		return nil, err
+	}
+	template := &x509.Certificate{
+		Subject: pkix.Name{
+			Country:            C,
+			Province:           S,
+			Locality:           L,
+			Organization:       O,
+			OrganizationalUnit: OU,
+			CommonName:         cn,
+		},
+		SerialNumber: serial,
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().AddDate(y, 0, 0),
+
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+		BasicConstraintsValid: true,
+		IsCA:                  false,
+	}
+	der, err := x509.CreateCertificate(rand.Reader, template, iss.cert, key.Public(), iss.key)
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := os.OpenFile(fmt.Sprintf("%s/%s.pem", config.RootDIR, cn), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	err = pem.Encode(file, &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: der,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return x509.ParseCertificate(der)
+}
+
+func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []string, config ZcaConfig) (*x509.Certificate, error) {
+	var cnFolder = config.CertDir + "/" + strings.Replace(cn, "*", "_", -1)
 	err := os.Mkdir(cnFolder, 0700)
 	if err != nil && !os.IsExist(err) {
 		return nil, err

@@ -7,11 +7,11 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
-func showCAForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QFormLayout {
+func showCAIntForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QFormLayout {
 	config := ConfigParser()
 	formLayout := widgets.NewQFormLayout(nil)
 	formLayout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
-	label := widgets.NewQLabel2("Create New Root Certificate Authority", nil, 0)
+	label := widgets.NewQLabel2("Create New Intermediate Certificate Authority", nil, 0)
 	formLayout.AddWidget(label)
 	C := widgets.NewQLineEdit(nil)
 	C.SetPlaceholderText("US")
@@ -38,7 +38,7 @@ func showCAForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets
 	formLayout.AddRow3("Common Name: ", CN)
 
 	CName := widgets.NewQLineEdit(nil)
-	CName.SetPlaceholderText("root.widgets.com")
+	CName.SetPlaceholderText("intermediate.widgets.com")
 	formLayout.AddRow3("Certificate Name: ", CName)
 
 	age := widgets.NewQComboBox(nil)
@@ -71,39 +71,38 @@ func showCAForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets
 				widgets.QMessageBox_Critical(nil, "error", "A CA by that name already exists", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 			} else {
 				//create new ca
-				caKey := config.RootDIR + "/" + CName.Text() + "-key.pem"
-				caCert := config.RootDIR + "/" + CName.Text() + ".pem"
+				caKey := config.RootDIR + "/" + GlobalCert + "-key.pem"
+				caCert := config.RootDIR + "/" + GlobalCert + ".pem"
 
-				//step 1 make key
-				key, err := makeKey(caKey)
+				issuer, err := getIssuer(caKey, caCert)
 				if err != nil {
-					fmt.Println("Unable to generate key by the name", caKey)
+					fmt.Println(err)
+				}
+
+				//if key created properly then create the certificate
+				c := []string{}
+				c = append(c, C.Text())
+				s := []string{}
+				s = append(s, S.Text())
+				l := []string{}
+				l = append(l, L.Text())
+				o := []string{}
+				o = append(o, O.Text())
+				ou := []string{}
+				ou = append(ou, OU.Text())
+				i, _ := strconv.Atoi(age.CurrentText())
+				_, err = intermediate(issuer, CName.Text(), i, c, s, l, o, ou, config)
+				if err != nil {
+					fmt.Println("Error creating Intermediate Cert", caKey)
 				} else {
-					//if key created properly then create the certificate
-					c := []string{}
-					c = append(c, C.Text())
-					s := []string{}
-					s = append(s, S.Text())
-					l := []string{}
-					l = append(l, L.Text())
-					o := []string{}
-					o = append(o, O.Text())
-					ou := []string{}
-					ou = append(ou, OU.Text())
-					i, _ := strconv.Atoi(age.CurrentText())
-					_, err = makeRootCert(key, caCert, CN.Text(), c, s, l, o, ou, i)
-					if err != nil {
-						fmt.Println("Error creating Root Cert", caKey)
-					} else {
-						GlobalForm = ""
-						window.Close()
-						mkgui(app, window)
-					}
+					GlobalForm = ""
+					window.Close()
+					mkgui(app, window)
 				}
 
 			}
 		} else {
-			widgets.QMessageBox_Critical(nil, "error", "You must supply a common name and a root CA name", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			widgets.QMessageBox_Critical(nil, "error", "You must supply a common name and a Intermediate CA name", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 		}
 	})
 

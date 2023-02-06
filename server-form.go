@@ -10,9 +10,11 @@ import (
 )
 
 func showServerForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QFormLayout {
+	config := ConfigParser()
 	formLayout := widgets.NewQFormLayout(nil)
 	formLayout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
-
+	label := widgets.NewQLabel2("Create New Server or Client Certificate", nil, 0)
+	formLayout.AddWidget(label)
 	C := widgets.NewQLineEdit(nil)
 	C.SetPlaceholderText("US")
 	formLayout.AddRow3("Country (two letter): ", C)
@@ -73,15 +75,13 @@ func showServerForm(app *widgets.QApplication, window *widgets.QMainWindow) *wid
 	})
 	addButton.ConnectClicked(func(checked bool) {
 		//check if file exists
-		//create new ca
-		caKey := "root/" + GlobalCert + "-key.pem"
-		caCert := "root/" + GlobalCert + ".pem"
+		caKey := config.RootDIR + "/" + GlobalCert + "-key.pem"
+		caCert := config.RootDIR + "/" + GlobalCert + ".pem"
 
 		issuer, err := getIssuer(caKey, caCert)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println(issuer)
 
 		c := []string{}
 		c = append(c, C.Text())
@@ -107,7 +107,7 @@ func showServerForm(app *widgets.QApplication, window *widgets.QMainWindow) *wid
 		}
 
 		//sign(iss *issuer, cn string, y int, domains, ipAddresses []string)
-		_, err = sign(issuer, CName.Text(), i, domainSlice, ipSlice, c, s, l, o, ou)
+		_, err = sign(issuer, CName.Text(), i, domainSlice, ipSlice, c, s, l, o, ou, config)
 
 		// 	_, err = makeRootCert(key, caCert, CN.Text(), c, s, l, o, ou, i)
 		if err != nil {
