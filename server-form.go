@@ -71,7 +71,7 @@ func showServerForm(app *widgets.QApplication, window *widgets.QMainWindow) *wid
 	cancelButton.SetText("Cancel")
 	optionGroup.AddWidget(cancelButton, 0, 0)
 
-	formLayout.InsertRow6(10, optionGroup)
+	formLayout.InsertRow6(11, optionGroup)
 
 	cancelButton.ConnectClicked(func(checked bool) {
 		window.Close()
