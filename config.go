@@ -52,11 +52,29 @@ func CkConfig() bool {
 	return true
 }
 
+// function to update the config when saving
+func updateConfig(root, cert string) bool {
+
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		log.Println("Unable to get home dir")
+		return false
+	}
+	configFile := "zca-config.json"
+	configDir := homedir + "/.config/zca"
+
+	//first run check an create directory structure
+	makeDirectory(root) //for the root certificates
+	makeDirectory(cert) //for signed certificates
+	return writeConfig(root, cert, configDir, configFile)
+
+}
+
 func writeConfig(root, cert, configDir, configFile string) bool {
 
 	file, err := os.Create(configDir + "/" + configFile)
 	if err != nil {
-		log.Println("Unable to create config file (line 60)")
+		log.Println("Unable to create config file (line 59)")
 		return false
 	}
 	defer file.Close()

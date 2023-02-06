@@ -3,7 +3,6 @@ package main
 import (
 	"crypto"
 	"crypto/x509"
-	"fmt"
 	"os"
 
 	"github.com/therecipe/qt/core"
@@ -105,7 +104,12 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 	showConfig := widgets.NewQPushButton2("Config", nil)
 	toolbar.AddWidget(showConfig)
 	showConfig.ConnectClicked(func(checked bool) {
-		fmt.Println("open config")
+		if GlobalForm != "C" {
+			centralWidget.DeleteLater()
+			vlayout2 := mkgui(app, window)
+			vlayout2.AddLayout(configEdit(app, window), 0)
+			GlobalForm = "C"
+		}
 	})
 
 	return toolbar
