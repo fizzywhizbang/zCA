@@ -56,15 +56,32 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 	toolbar.SetToolButtonStyle(core.Qt__ToolButtonTextOnly)
 	toolbar.SetMovable(true)
 
-	label := widgets.NewQLabel2("Select CA", nil, 0)
+	label := widgets.NewQLabel2("Select Action", nil, 0)
 	toolbar.AddWidget(label)
 
 	newSelector := widgets.NewQComboBox(nil)
-	items := []string{"Select Action", "New Root", "New Intermediate", "New Server/Client", "List Certificates", "List CA Certificates"}
+	items := []string{"Select Action", "Create User Certificate", "List CA Certificates", "List Certificates", "New Root", "New Intermediate", "New Server/Client"}
 	newSelector.AddItems(items)
 
 	newSelector.ConnectCurrentTextChanged(func(text string) {
-
+		if text == "Create User Certificate" {
+			centralWidget.DeleteLater()
+			vlayout2 := mkgui(app, window)
+			vlayout2.AddLayout(showUserForm(app, window), 0)
+			GlobalForm = text
+		}
+		if text == "List CA Certificates" {
+			centralWidget.DeleteLater()
+			vlayout2 := mkgui(app, window)
+			vlayout2.AddLayout(listCACerts(app, window), 0)
+			GlobalForm = text
+		}
+		if text == "List Certificates" {
+			centralWidget.DeleteLater()
+			vlayout2 := mkgui(app, window)
+			vlayout2.AddLayout(listCerts(app, window), 0)
+			GlobalForm = text
+		}
 		if text == "New Root" {
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
@@ -85,18 +102,6 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 			GlobalForm = "New Server/Client"
 		}
 
-		if text == "List Certificates" {
-			centralWidget.DeleteLater()
-			vlayout2 := mkgui(app, window)
-			vlayout2.AddLayout(listCerts(app, window), 0)
-			GlobalForm = text
-		}
-		if text == "List CA Certificates" {
-			centralWidget.DeleteLater()
-			vlayout2 := mkgui(app, window)
-			vlayout2.AddLayout(listCACerts(app, window), 0)
-			GlobalForm = text
-		}
 		window.Show()
 	})
 	toolbar.AddWidget(newSelector)
