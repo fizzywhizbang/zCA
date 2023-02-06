@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/therecipe/qt/core"
+	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 )
 
@@ -40,18 +41,19 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 		treeWidget.AddTopLevelItem(treewidgetItem)
 	}
 	treeWidget.ConnectDoubleClicked(func(index *core.QModelIndex) {
-		data := index.Data(int(core.Qt__UserRole)).ToString()
-		item := treeWidget.CurrentColumn()
-		if item == 0 { //ignore anything else
-			file := "crt/" + data + "/" + data + "cert.pem"
-			showCert(file, app)
-		}
+		certName := treeWidget.CurrentItem().Text(0)
+		file := "crt/" + certName + "/" + certName + "cert.pem"
+		showCert(file, app)
 
 	})
 	treeWidget.ResizeColumnToContents(1)
 	treeWidget.ResizeColumnToContents(2)
 	treeWidget.SetColumnWidth(0, 400)
 
+	treeWidget.ConnectContextMenuEvent(func(event *gui.QContextMenuEvent) {
+		certName := treeWidget.CurrentItem().Text(0)
+		contextMenu(certName, window, app, event)
+	})
 	return verticalLayout
 
 }
@@ -73,5 +75,21 @@ func readDates(file string) (string, string) {
 	notbefore := cert.NotBefore.Format("Jan 2 15:04:05 2006 MST")
 	notafter := cert.NotAfter.Format("Jan 2 15:04:05 2006 MST")
 	return notbefore, notafter
+
+}
+
+func contextMenu(certName string, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
+	menu := widgets.NewQMenu(w)
+
+	menu.AddAction("View Certificate Info").ConnectTriggered(func(checked bool) {
+		file := "crt/" + certName + "/" + certName + "cert.pem"
+		showCert(file, app)
+	})
+	menu.AddAction("View Certificate and Key").ConnectTriggered(func(checked bool) {
+
+		showCertKey(certName, app)
+	})
+
+	menu.Exec2(event.GlobalPos().QPoint_PTR(), nil)
 
 }

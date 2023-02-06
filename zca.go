@@ -3,6 +3,7 @@ package main
 import (
 	"crypto"
 	"crypto/x509"
+	"fmt"
 	"os"
 
 	"github.com/therecipe/qt/core"
@@ -23,7 +24,7 @@ func main() {
 	makeDirectory("crt")  //for signed certificates
 	app := widgets.NewQApplication(len(os.Args), os.Args)
 	window := mkWindow(app)
-	gui(app, window)
+	mkgui(app, window)
 	app.Exec()
 }
 
@@ -34,7 +35,7 @@ func mkWindow(app *widgets.QApplication) *widgets.QMainWindow {
 	return window
 }
 
-func gui(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBoxLayout {
+func mkgui(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBoxLayout {
 
 	centralWidget := widgets.NewQWidget(nil, 0)
 	window.SetCentralWidget(centralWidget)
@@ -71,7 +72,7 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 	goButton.ConnectClicked(func(checked bool) {
 		if GlobalForm != "CA" {
 			centralWidget.DeleteLater()
-			vlayout2 := gui(app, window)
+			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(showCAForm(app, window), 0)
 			GlobalForm = "CA"
 		}
@@ -85,7 +86,7 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 		GlobalCert = selector.CurrentText()
 		if GlobalForm != "SC" {
 			centralWidget.DeleteLater()
-			vlayout2 := gui(app, window)
+			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(showServerForm(app, window), 0)
 			GlobalForm = "SC"
 		}
@@ -96,10 +97,16 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 	showCerts.ConnectClicked(func(checked bool) {
 		if GlobalForm != "LC" {
 			centralWidget.DeleteLater()
-			vlayout2 := gui(app, window)
+			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(listCerts(app, window), 0)
 			GlobalForm = "LC"
 		}
+	})
+
+	showConfig := widgets.NewQPushButton2("Config", nil)
+	toolbar.AddWidget(showConfig)
+	showConfig.ConnectClicked(func(checked bool) {
+		fmt.Println("open config")
 	})
 
 	return toolbar

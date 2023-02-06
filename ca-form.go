@@ -59,7 +59,7 @@ func showCAForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets
 	cancelButton.ConnectClicked(func(checked bool) {
 		window.Close()
 		GlobalForm = ""
-		gui(app, window)
+		mkgui(app, window)
 	})
 	addButton.ConnectClicked(func(checked bool) {
 		if len(CName.Text()) >= 1 && len(CN.Text()) >= 1 {
@@ -95,7 +95,7 @@ func showCAForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets
 					} else {
 						GlobalForm = ""
 						window.Close()
-						gui(app, window)
+						mkgui(app, window)
 					}
 				}
 
