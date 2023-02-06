@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/therecipe/qt/core"
+	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 )
 
@@ -27,6 +29,12 @@ func showCert(certName string, config ZcaConfig, app *widgets.QApplication) {
 
 	//create new window
 	window := mkWindow(app)
+	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
+		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+			//close window
+			window.Close()
+		}
+	})
 	centralWidget := widgets.NewQWidget(nil, 0)
 	window.SetCentralWidget(centralWidget)
 	verticalLayout := widgets.NewQVBoxLayout()
