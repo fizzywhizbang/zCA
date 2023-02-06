@@ -32,7 +32,9 @@ func fileExists(filename string) bool {
 }
 
 func getCas() []string {
-	files, err := os.ReadDir("root/")
+	config := ConfigParser()
+
+	files, err := os.ReadDir(config.RootDIR)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +50,8 @@ func getCas() []string {
 }
 
 func getCerts() []string {
-	files, err := os.ReadDir("crt/")
+	config := ConfigParser()
+	files, err := os.ReadDir(config.CertDir)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -12,7 +12,7 @@ import (
 )
 
 func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBoxLayout {
-
+	config := ConfigParser()
 	verticalLayout := widgets.NewQVBoxLayout()
 
 	treeWidget := widgets.NewQTreeWidget(nil)
@@ -33,7 +33,7 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 	certs := getCerts()
 
 	for _, val := range certs {
-		file := "crt/" + val + "/" + val + "cert.pem"
+		file := config.CertDir + "/" + val + "/" + val + "cert.pem"
 		notBefore, notAfter := readDates(file)
 
 		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{val, notBefore, notAfter}, 0)
@@ -42,8 +42,7 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 	}
 	treeWidget.ConnectDoubleClicked(func(index *core.QModelIndex) {
 		certName := treeWidget.CurrentItem().Text(0)
-		file := "crt/" + certName + "/" + certName + "cert.pem"
-		showCert(file, app)
+		showCert(certName, config, app)
 
 	})
 	treeWidget.ResizeColumnToContents(1)
@@ -52,7 +51,7 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 
 	treeWidget.ConnectContextMenuEvent(func(event *gui.QContextMenuEvent) {
 		certName := treeWidget.CurrentItem().Text(0)
-		contextMenu(certName, window, app, event)
+		contextMenu(certName, config, window, app, event)
 	})
 	return verticalLayout
 
@@ -78,16 +77,14 @@ func readDates(file string) (string, string) {
 
 }
 
-func contextMenu(certName string, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
+func contextMenu(certName string, config ZcaConfig, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
 	menu := widgets.NewQMenu(w)
 
 	menu.AddAction("View Certificate Info").ConnectTriggered(func(checked bool) {
-		file := "crt/" + certName + "/" + certName + "cert.pem"
-		showCert(file, app)
+		showCert(certName, config, app)
 	})
 	menu.AddAction("View Certificate and Key").ConnectTriggered(func(checked bool) {
-
-		showCertKey(certName, app)
+		showCertKey(certName, config, app)
 	})
 
 	menu.Exec2(event.GlobalPos().QPoint_PTR(), nil)

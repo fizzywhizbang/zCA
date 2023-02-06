@@ -9,7 +9,8 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
-func showCert(file string, app *widgets.QApplication) {
+func showCert(certName string, config ZcaConfig, app *widgets.QApplication) {
+	file := config.CertDir + "/" + certName + "/" + certName + "cert.pem"
 	// Read and parse the PEM certificate file
 	pemData, err := ioutil.ReadFile(file)
 	if err != nil {

@@ -38,9 +38,13 @@ func CkConfig() bool {
 			log.Println("Error creating config dir (line 38)")
 			return false
 		}
+
 		if !Exists(configDir + "/" + configFile) {
 			root := configDir + "/root"
 			cert := configDir + "/crt"
+			//first run check an create directory structure
+			makeDirectory(root) //for the root certificates
+			makeDirectory(cert) //for signed certificates
 			return writeConfig(root, cert, configDir, configFile)
 		}
 		return true
@@ -58,7 +62,7 @@ func writeConfig(root, cert, configDir, configFile string) bool {
 	defer file.Close()
 	fmt.Fprintln(file, "{")
 	fmt.Fprintln(file, "\t\"root-dir\":\""+root+"\",")
-	fmt.Fprintln(file, "\t\"cert-dir\":\""+cert+"\",")
+	fmt.Fprintln(file, "\t\"cert-dir\":\""+cert+"\"")
 	fmt.Fprintln(file, "}")
 
 	return true

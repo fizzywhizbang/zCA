@@ -19,9 +19,8 @@ var GlobalForm = ""
 var GlobalCert = ""
 
 func main() {
-	//first run check an create directory structure
-	makeDirectory("root") //for the root certificates
-	makeDirectory("crt")  //for signed certificates
+	//if first run create config file and directories
+	CkConfig()
 	app := widgets.NewQApplication(len(os.Args), os.Args)
 	window := mkWindow(app)
 	mkgui(app, window)
