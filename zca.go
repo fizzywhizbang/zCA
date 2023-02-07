@@ -60,11 +60,11 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 	toolbar.AddWidget(label)
 
 	newSelector := widgets.NewQComboBox(nil)
-	items := []string{"Select Action", "Create User Certificate", "List CA Certificates", "List Certificates", "New Root", "New Intermediate", "New Server/Client"}
+	items := []string{"Select Action", "List CA Certificates", "List Certificates", "New Root", "New Intermediate", "New Server/Client", "New User Certificate"}
 	newSelector.AddItems(items)
 
 	newSelector.ConnectCurrentTextChanged(func(text string) {
-		if text == "Create User Certificate" {
+		if text == "New User Certificate" {
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(showUserForm(app, window), 0)

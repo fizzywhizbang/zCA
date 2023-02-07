@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -203,6 +204,7 @@ func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []
 		BasicConstraintsValid: true,
 		IsCA:                  false,
 	}
+
 	fmt.Println("Create Certificate")
 	der, err := x509.CreateCertificate(rand.Reader, template, iss.cert, key.Public(), iss.key)
 	if err != nil {
@@ -250,10 +252,16 @@ func userCertificate(iss *issuer, cn string, y int, O, OU []string, config ZcaCo
 		NotAfter:     time.Now().AddDate(y, 0, 0),
 
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageContentCommitment,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageEmailProtection, x509.ExtKeyUsageCodeSigning},
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageEmailProtection},
 		BasicConstraintsValid: true,
 		IsCA:                  false,
 	}
+	extSubjectAltName := pkix.Extension{}
+	extSubjectAltName.Id = asn1.ObjectIdentifier{2, 16, 840, 1, 101, 3, 6, 6}
+	extSubjectAltName.Critical = false
+	extSubjectAltName.Value = []byte(`Principal Name:levine.marc.s`)
+	template.ExtraExtensions = []pkix.Extension{extSubjectAltName}
+
 	der, err := x509.CreateCertificate(rand.Reader, template, iss.cert, key.Public(), iss.key)
 	if err != nil {
 		return nil, err
