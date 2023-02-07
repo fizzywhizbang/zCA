@@ -13,6 +13,7 @@ Install go
 Install therecipe/qt  
 Download this source  
 type go run .  
+If using a mac download the latest release
   
 The program will create a root directory and a crt directory
 Your root certs will be stored under root and any other certs you create will be stored under crt  
