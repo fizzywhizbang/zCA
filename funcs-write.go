@@ -174,10 +174,12 @@ func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []
 		return nil, err
 	}
 	parsedIPs, err := parseIPs(ipAddresses)
+	fmt.Println("Parse IP")
 	if err != nil {
 		return nil, err
 	}
 	serial, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
+	fmt.Println("Gen Serial")
 	if err != nil {
 		return nil, err
 	}
@@ -201,6 +203,7 @@ func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []
 		BasicConstraintsValid: true,
 		IsCA:                  false,
 	}
+	fmt.Println("Create Certificate")
 	der, err := x509.CreateCertificate(rand.Reader, template, iss.cert, key.Public(), iss.key)
 	if err != nil {
 		return nil, err
@@ -221,7 +224,7 @@ func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []
 	return x509.ParseCertificate(der)
 }
 
-func userCertificate(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []string, config ZcaConfig) (*x509.Certificate, error) {
+func userCertificate(iss *issuer, cn string, y int, O, OU []string, config ZcaConfig) (*x509.Certificate, error) {
 	var cnFolder = config.CertDir + "/" + strings.Replace(cn, "*", "_", -1)
 	err := os.Mkdir(cnFolder, 0700)
 	if err != nil && !os.IsExist(err) {
@@ -231,21 +234,13 @@ func userCertificate(iss *issuer, cn string, y int, domains, ipAddresses, C, S, 
 	if err != nil {
 		return nil, err
 	}
-	parsedIPs, err := parseIPs(ipAddresses)
-	if err != nil {
-		return nil, err
-	}
+
 	serial, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 	if err != nil {
 		return nil, err
 	}
 	template := &x509.Certificate{
-		DNSNames:    domains,
-		IPAddresses: parsedIPs,
 		Subject: pkix.Name{
-			Country:            C,
-			Province:           S,
-			Locality:           L,
 			Organization:       O,
 			OrganizationalUnit: OU,
 			CommonName:         cn,
