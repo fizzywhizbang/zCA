@@ -20,5 +20,4 @@ Your root certs will be stored under root and any other certs you create will be
 You can have more than one root CA if you deisre  
   
 I am still working on this and this program will be able to create multiple types of certificates  
-as well as being able to have root and intermediate certificate authorities  
-  
+ 
