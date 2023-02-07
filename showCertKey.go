@@ -11,7 +11,7 @@ import (
 
 func showCertKey(file, certtype string, config ZcaConfig, app *widgets.QApplication) {
 
-	fileCert := config.CertDir + "/" + file + "/" + file + "cert.pem"
+	fileCert := config.CertDir + "/" + file + "/" + file + ".pem"
 	fileKey := config.CertDir + "/" + file + "/" + file + "-key.pem"
 
 	if certtype == "root" {

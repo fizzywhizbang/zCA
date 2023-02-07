@@ -12,7 +12,7 @@ import (
 )
 
 func showCert(certName, certtype string, config ZcaConfig, app *widgets.QApplication) {
-	file := config.CertDir + "/" + certName + "/" + certName + "cert.pem"
+	file := config.CertDir + "/" + certName + "/" + certName + ".pem"
 	if certtype == "root" {
 		file = config.RootDIR + "/" + certName + ".pem"
 	}

@@ -33,7 +33,7 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 	certs := getCerts(config.CertDir)
 
 	for _, val := range certs {
-		file := config.CertDir + "/" + val + "/" + val + "cert.pem"
+		file := config.CertDir + "/" + val + "/" + val + ".pem"
 		notBefore, notAfter := readDates(file)
 
 		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{val, notBefore, notAfter}, 0)

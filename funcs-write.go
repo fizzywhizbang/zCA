@@ -209,7 +209,7 @@ func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []
 		return nil, err
 	}
 
-	file, err := os.OpenFile(fmt.Sprintf("%s/%scert.pem", cnFolder, cn), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(fmt.Sprintf("%s/%s.pem", cnFolder, cn), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +259,7 @@ func userCertificate(iss *issuer, cn string, y int, O, OU []string, config ZcaCo
 		return nil, err
 	}
 
-	file, err := os.OpenFile(fmt.Sprintf("%s/%scert.pem", cnFolder, cn), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(fmt.Sprintf("%s/%s.pem", cnFolder, cn), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, err
 	}
