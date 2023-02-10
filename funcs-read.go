@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto"
 	"crypto/sha1"
@@ -49,6 +50,36 @@ func getCas() []string {
 	return list
 }
 
+func getCertStatus(crl, serial string) string {
+	readFile, err := os.Open(crl)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileScanner := bufio.NewScanner(readFile)
+
+	fileScanner.Split(bufio.ScanLines)
+	/*
+		column0 (status): Valid Revoked or Expired (V,R,E)
+		column1 (currentTime + y): Expiration time
+		column2: revokation time if R is set
+		column3: Serial number (use serial number)
+		column4: filename of the certificate (use filename)
+		column5: certificate subject name (use CN)
+	*/
+	for fileScanner.Scan() {
+		//split
+		slice := strings.Split(fileScanner.Text(), "\t")
+		if slice[3] == serial {
+			return slice[0]
+		}
+
+	}
+
+	readFile.Close()
+	return "F"
+}
+
 func getCerts(dir string) []string {
 	files, err := os.ReadDir(dir)
 	if err != nil {
@@ -57,7 +88,7 @@ func getCerts(dir string) []string {
 
 	list := []string{}
 	for _, file := range files {
-		if !strings.Contains(file.Name(), "DS_Store") && !strings.Contains(file.Name(), "key") {
+		if !strings.Contains(file.Name(), "DS_Store") && !strings.Contains(file.Name(), "key") && !strings.Contains(file.Name(), "txt") {
 
 			list = append(list, strings.Replace(file.Name(), ".pem", "", -1))
 		}

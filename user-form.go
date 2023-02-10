@@ -32,8 +32,12 @@ func showUserForm(app *widgets.QApplication, window *widgets.QMainWindow) *widge
 	// formLayout.AddRow3("Common Name: ", CN)
 
 	CName := widgets.NewQLineEdit(nil)
-	CName.SetPlaceholderText("marc.levine")
+	CName.SetPlaceholderText("john.doe")
 	formLayout.AddRow3("Certificate Name: ", CName)
+
+	Email := widgets.NewQLineEdit(nil)
+	Email.SetPlaceholderText("john.doe@gmail.com")
+	formLayout.AddRow3("Email Address: ", Email)
 
 	age := widgets.NewQComboBox(nil)
 	age.AddItems([]string{"3", "2", "1"})
@@ -58,7 +62,7 @@ func showUserForm(app *widgets.QApplication, window *widgets.QMainWindow) *widge
 	cancelButton.SetText("Cancel")
 	optionGroup.AddWidget(cancelButton, 0, 0)
 
-	formLayout.InsertRow6(10, optionGroup)
+	formLayout.InsertRow6(11, optionGroup)
 
 	cancelButton.ConnectClicked(func(checked bool) {
 		window.Close()
@@ -80,6 +84,8 @@ func showUserForm(app *widgets.QApplication, window *widgets.QMainWindow) *widge
 		ou := []string{}
 		ou = append(ou, OU.Text())
 		i, _ := strconv.Atoi(age.CurrentText())
+		email := []string{}
+		email = append(email, Email.Text())
 
 		// domainSlice := []string{}
 		// scanner := bufio.NewScanner(strings.NewReader(domains.ToPlainText()))
@@ -93,7 +99,7 @@ func showUserForm(app *widgets.QApplication, window *widgets.QMainWindow) *widge
 		// }
 
 		//sign(iss *issuer, cn string, y int, domains, ipAddresses []string)
-		_, err = userCertificate(issuer, CName.Text(), i, o, ou, config)
+		_, err = userCertificate(issuer, CName.Text(), i, o, ou, email, config)
 
 		if err != nil {
 			fmt.Println("Error creating Cert", err)
@@ -102,7 +108,7 @@ func showUserForm(app *widgets.QApplication, window *widgets.QMainWindow) *widge
 			window.Close()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(listCerts(app, window), 0)
-			GlobalForm = "LC"
+			GlobalForm = "List Certificates"
 		}
 		// }
 	})

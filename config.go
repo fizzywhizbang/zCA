@@ -10,6 +10,8 @@ import (
 type ZcaConfig struct {
 	RootDIR string `json:"root-dir"`
 	CertDir string `json:"cert-dir"`
+	OCSP    string `json:"ocsp"`
+	CRL     string `json:"crl"`
 }
 
 // check if a file exists used for startup
@@ -45,7 +47,9 @@ func CkConfig() bool {
 			//first run check an create directory structure
 			makeDirectory(root) //for the root certificates
 			makeDirectory(cert) //for signed certificates
-			return writeConfig(root, cert, configDir, configFile)
+			ocsp := "http://127.0.0.1:8080/ocsp"
+			crl := cert + "/" + "crl.txt"
+			return writeConfig(root, cert, ocsp, crl, configDir, configFile)
 		}
 		return true
 	}
@@ -53,7 +57,7 @@ func CkConfig() bool {
 }
 
 // function to update the config when saving
-func updateConfig(root, cert string) bool {
+func updateConfig(root, cert, ocsp, crl string) bool {
 
 	homedir, err := os.UserHomeDir()
 	if err != nil {
@@ -66,11 +70,12 @@ func updateConfig(root, cert string) bool {
 	//first run check an create directory structure
 	makeDirectory(root) //for the root certificates
 	makeDirectory(cert) //for signed certificates
-	return writeConfig(root, cert, configDir, configFile)
+
+	return writeConfig(root, cert, ocsp, crl, configDir, configFile)
 
 }
 
-func writeConfig(root, cert, configDir, configFile string) bool {
+func writeConfig(root, cert, ocsp, crl, configDir, configFile string) bool {
 
 	file, err := os.Create(configDir + "/" + configFile)
 	if err != nil {
@@ -80,7 +85,9 @@ func writeConfig(root, cert, configDir, configFile string) bool {
 	defer file.Close()
 	fmt.Fprintln(file, "{")
 	fmt.Fprintln(file, "\t\"root-dir\":\""+root+"\",")
-	fmt.Fprintln(file, "\t\"cert-dir\":\""+cert+"\"")
+	fmt.Fprintln(file, "\t\"cert-dir\":\""+cert+"\",")
+	fmt.Fprintln(file, "\t\"ocsp\":\""+ocsp+"\",")
+	fmt.Fprintln(file, "\t\"crl\":\""+crl+"\"")
 	fmt.Fprintln(file, "}")
 
 	return true

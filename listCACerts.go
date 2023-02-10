@@ -36,7 +36,7 @@ func listCACerts(app *widgets.QApplication, window *widgets.QMainWindow) *widget
 	for _, val := range certs {
 		file := config.RootDIR + "/" + val + ".pem"
 		fmt.Println(file)
-		notBefore, notAfter := readDates(file)
+		notBefore, notAfter, _ := readDates(file)
 		// notBefore := ""
 		// notAfter := ""
 

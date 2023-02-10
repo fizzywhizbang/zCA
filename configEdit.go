@@ -17,13 +17,23 @@ func configEdit(app *widgets.QApplication, window *widgets.QMainWindow) *widgets
 	certText.SetFixedWidth(580)
 	formLayout.AddRow3("Certificate Directory: ", certText)
 
+	ocspText := widgets.NewQLineEdit(nil)
+	ocspText.SetText(config.OCSP)
+	ocspText.SetFixedWidth(580)
+	formLayout.AddRow3("OCSP URL: ", ocspText)
+
+	crlText := widgets.NewQLineEdit(nil)
+	crlText.SetText(config.CRL)
+	crlText.SetFixedWidth(580)
+	formLayout.AddRow3("CRL Location: ", crlText)
+
 	optionGroup := widgets.NewQHBoxLayout()
 
 	//add button
 	savButton := widgets.NewQPushButton(nil)
 	savButton.SetText("Save")
 	savButton.ConnectClicked(func(checked bool) {
-		if updateConfig(rootText.Text(), certText.Text()) {
+		if updateConfig(rootText.Text(), certText.Text(), ocspText.Text(), crlText.Text()) {
 			widgets.QMessageBox_Information(nil, "Saved", "Updated Configuration File\nBe sure to restart the program to apply the new settings", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 		} else {
 			widgets.QMessageBox_Warning(nil, "Warning", "Something went wrong, I need my meds", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
@@ -40,7 +50,7 @@ func configEdit(app *widgets.QApplication, window *widgets.QMainWindow) *widgets
 		mkgui(app, window)
 	})
 	optionGroup.AddWidget(cancelButton, 0, 0)
-	formLayout.InsertRow6(3, optionGroup)
+	formLayout.InsertRow6(5, optionGroup)
 
 	verticalLayout.AddLayout(formLayout, 0)
 	return verticalLayout

@@ -66,6 +66,48 @@ func makeKey(filename string) (*rsa.PrivateKey, error) {
 	return key, nil
 }
 
+func mkLog(status string, y int, serial, filename, cname string, config ZcaConfig) {
+
+	file, err := os.OpenFile(config.CRL, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		fmt.Println("Could not open CRL")
+		return
+	}
+
+	defer file.Close()
+
+	/*
+		tab delimited always 6 columns openssl format
+			column0 (status): Valid Revoked or Expired (V,R,E)
+			column1 (currentTime + y): Expiration time
+			column2: revokation time if R is set
+			column3: Serial number (use serial number)
+			column4: filename of the certificate (use filename)
+			column5: certificate subject name (use CN)
+			Not all columns are used but a tab is there just in case
+			0   1(YYMMDD 00:00:01) 2  3                                   4       5
+	*/
+	status = strings.ToUpper(status)
+	currentTime := time.Now()
+	currentTime = currentTime.AddDate(y, 0, 0)
+	notBefore := currentTime.Format("060102000001")
+
+	revocationTime := ""
+	if status == "R" {
+		revocationTime = time.Now().Format("060102000001")
+	}
+
+	formatedString := status + "\t" + notBefore + "\t" + revocationTime + "\t" + serial + "\t" + filename + "\t" + cname + "\n"
+
+	_, err2 := file.WriteString(formatedString)
+
+	if err2 != nil {
+		fmt.Println("Could not write text to example.txt")
+	}
+
+}
+
 func makeRootCert(key crypto.Signer, filename, caname string, C, S, L, O, OU []string, y int) (*x509.Certificate, error) {
 	serial, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 	if err != nil {
@@ -113,6 +155,9 @@ func makeRootCert(key crypto.Signer, filename, caname string, C, S, L, O, OU []s
 	if err != nil {
 		return nil, err
 	}
+	//log the action
+	mkLog("V", y, serial.String(), filename, caname, ConfigParser())
+
 	return x509.ParseCertificate(der)
 }
 
@@ -161,6 +206,9 @@ func intermediate(iss *issuer, cn string, y int, C, S, L, O, OU []string, config
 	if err != nil {
 		return nil, err
 	}
+	//log the action
+	mkLog("V", y, serial.String(), cn, cn, ConfigParser())
+
 	return x509.ParseCertificate(der)
 }
 
@@ -201,6 +249,7 @@ func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []
 
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+		OCSPServer:            []string{config.OCSP},
 		BasicConstraintsValid: true,
 		IsCA:                  false,
 	}
@@ -223,10 +272,14 @@ func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []
 	if err != nil {
 		return nil, err
 	}
+
+	//log the action
+	mkLog("V", y, serial.String(), cn, cn, ConfigParser())
+
 	return x509.ParseCertificate(der)
 }
 
-func userCertificate(iss *issuer, cn string, y int, O, OU []string, config ZcaConfig) (*x509.Certificate, error) {
+func userCertificate(iss *issuer, cn string, y int, O, OU, email []string, config ZcaConfig) (*x509.Certificate, error) {
 	var cnFolder = config.CertDir + "/" + strings.Replace(cn, "*", "_", -1)
 	err := os.Mkdir(cnFolder, 0700)
 	if err != nil && !os.IsExist(err) {
@@ -247,12 +300,13 @@ func userCertificate(iss *issuer, cn string, y int, O, OU []string, config ZcaCo
 			OrganizationalUnit: OU,
 			CommonName:         cn,
 		},
-		SerialNumber: serial,
-		NotBefore:    time.Now(),
-		NotAfter:     time.Now().AddDate(y, 0, 0),
-
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageContentCommitment,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageEmailProtection},
+		SerialNumber:          serial,
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().AddDate(y, 0, 0),
+		EmailAddresses:        email,
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageContentCommitment | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageEmailProtection, x509.ExtKeyUsageClientAuth},
+		OCSPServer:            []string{config.OCSP},
 		BasicConstraintsValid: true,
 		IsCA:                  false,
 	}
@@ -279,5 +333,8 @@ func userCertificate(iss *issuer, cn string, y int, O, OU []string, config ZcaCo
 	if err != nil {
 		return nil, err
 	}
+	// log the action
+	mkLog("V", y, serial.String(), cn, cn, ConfigParser())
+
 	return x509.ParseCertificate(der)
 }

@@ -18,7 +18,7 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 	treeWidget := widgets.NewQTreeWidget(nil)
 
 	verticalLayout.AddWidget(treeWidget, 0, 0)
-	treeWidget.SetColumnCount(3)
+	treeWidget.SetColumnCount(4)
 	treeWidget.SetObjectName("treewidget")
 	treeWidget.Header().SetSectionsClickable(true)
 	treeWidget.SetSortingEnabled(true)
@@ -28,15 +28,15 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 	tableColors := "alternate-background-color: #88DD88; background-color:#FFFFFF; color:#000000; font-size: 12px;"
 	treeWidget.SetStyleSheet(tableColors)
 	treeWidget.Header()
-	treeWidget.SetHeaderLabels([]string{"Certificate", "Not Before", "Not After"})
+	treeWidget.SetHeaderLabels([]string{"Certificate", "Status", "Not Before", "Not After"})
 
 	certs := getCerts(config.CertDir)
 
 	for _, val := range certs {
 		file := config.CertDir + "/" + val + "/" + val + ".pem"
-		notBefore, notAfter := readDates(file)
-
-		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{val, notBefore, notAfter}, 0)
+		notBefore, notAfter, serial := readDates(file)
+		status := getCertStatus(config.CRL, serial)
+		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{val, status, notBefore, notAfter}, 0)
 		treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(val))
 		treeWidget.AddTopLevelItem(treewidgetItem)
 	}
@@ -45,9 +45,10 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 		showCert(certName, "cert", config, app)
 
 	})
-	treeWidget.ResizeColumnToContents(1)
 	treeWidget.ResizeColumnToContents(2)
-	treeWidget.SetColumnWidth(0, 400)
+	treeWidget.ResizeColumnToContents(3)
+	treeWidget.SetColumnWidth(1, 50)
+	treeWidget.SetColumnWidth(0, 390)
 
 	treeWidget.ConnectContextMenuEvent(func(event *gui.QContextMenuEvent) {
 		certName := treeWidget.CurrentItem().Text(0)
@@ -57,7 +58,7 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 
 }
 
-func readDates(file string) (string, string) {
+func readDates(file string) (string, string, string) {
 	// Read and parse the PEM certificate file
 	pemData, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -73,7 +74,8 @@ func readDates(file string) (string, string) {
 	}
 	notbefore := cert.NotBefore.Format("Jan 2 15:04:05 2006 MST")
 	notafter := cert.NotAfter.Format("Jan 2 15:04:05 2006 MST")
-	return notbefore, notafter
+	serial := cert.SerialNumber.String()
+	return notbefore, notafter, serial
 
 }
 

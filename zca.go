@@ -22,6 +22,9 @@ func main() {
 	CkConfig()
 	app := widgets.NewQApplication(len(os.Args), os.Args)
 	window := mkWindow(app)
+
+	// config := ConfigParser()
+
 	mkgui(app, window)
 	app.Exec()
 }
