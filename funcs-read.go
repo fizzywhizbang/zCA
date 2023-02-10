@@ -85,6 +85,36 @@ func getCertStatus(crl, serial string) string {
 	return "F"
 }
 
+func readCRL(crl string) [][]string {
+	readFile, err := os.Open(crl)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileScanner := bufio.NewScanner(readFile)
+
+	fileScanner.Split(bufio.ScanLines)
+	/*
+		column0 (status): Valid Revoked or Expired (V,R,E)
+		column1 (currentTime + y): Expiration time
+		column2: revokation time if R is set
+		column3: Serial number (use serial number)
+		column4: filename of the certificate (use filename)
+		column5: certificate subject name (use CN)
+	*/
+	mdSlice := [][]string{{}}
+	// s2 := [][]string{[]string{"str1", "str2"}}
+	for fileScanner.Scan() {
+		//split
+		slice := strings.Split(fileScanner.Text(), "\t")
+		mdSlice = append(mdSlice, slice)
+
+	}
+
+	readFile.Close()
+	return mdSlice
+}
+
 func getCerts(dir string) []string {
 	files, err := os.ReadDir(dir)
 	if err != nil {

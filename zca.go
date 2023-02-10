@@ -29,7 +29,7 @@ func main() {
 
 func mkWindow(app *widgets.QApplication) *widgets.QMainWindow {
 	window := widgets.NewQMainWindow(nil, 0)
-	window.SetMinimumSize2(800, 600)
+	window.SetMinimumSize2(850, 600)
 	window.SetWindowTitle("ZCA")
 	return window
 }

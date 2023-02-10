@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -28,31 +29,41 @@ func listCerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.
 	tableColors := "alternate-background-color: #88DD88; background-color:#FFFFFF; color:#000000; font-size: 12px;"
 	treeWidget.SetStyleSheet(tableColors)
 	treeWidget.Header()
-	treeWidget.SetHeaderLabels([]string{"Certificate", "Status", "Not Before", "Not After"})
+	treeWidget.SetHeaderLabels([]string{"Certificate", "Status", "Serial", "Not After"})
 
-	certs := getCerts(config.CertDir)
+	/*
+		column0 (status): Valid Revoked or Expired (V,R,E)
+		column1 (currentTime + y): Expiration time
+		column2: revokation time if R is set
+		column3: Serial number (use serial number)
+		column4: filename of the certificate (use filename)
+		column5: certificate subject name (use CN)
+	*/
+	certs := readCRL(config.CRL)
+	for i := 0; i < len(certs); i++ {
+		if len(certs[i]) > 0 {
+			treewidgetItem := widgets.NewQTreeWidgetItem2([]string{certs[i][5], certs[i][0], certs[i][3], certs[i][1]}, 0)
+			treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(certs[i][3]))
+			treeWidget.AddTopLevelItem(treewidgetItem)
+		}
 
-	for _, val := range certs {
-		file := config.CertDir + "/" + val + "/" + val + ".pem"
-		notBefore, notAfter, serial := readDates(file)
-		status := getCertStatus(config.CRL, serial)
-		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{val, status, notBefore, notAfter}, 0)
-		treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(val))
-		treeWidget.AddTopLevelItem(treewidgetItem)
 	}
+
 	treeWidget.ConnectDoubleClicked(func(index *core.QModelIndex) {
 		certName := treeWidget.CurrentItem().Text(0)
-		showCert(certName, "cert", config, app)
+		serial := treeWidget.CurrentItem().Text(2)
+		showCert(certName, serial, "cert", config, app)
 
 	})
 	treeWidget.ResizeColumnToContents(2)
 	treeWidget.ResizeColumnToContents(3)
 	treeWidget.SetColumnWidth(1, 50)
-	treeWidget.SetColumnWidth(0, 390)
+	treeWidget.SetColumnWidth(0, 300)
 
 	treeWidget.ConnectContextMenuEvent(func(event *gui.QContextMenuEvent) {
 		certName := treeWidget.CurrentItem().Text(0)
-		contextMenu(certName, config, window, app, event)
+		serial := treeWidget.CurrentItem().Text(2)
+		contextMenu(certName, serial, config, window, app, event)
 	})
 	return verticalLayout
 
@@ -79,16 +90,18 @@ func readDates(file string) (string, string, string) {
 
 }
 
-func contextMenu(certName string, config ZcaConfig, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
+func contextMenu(certName, serial string, config ZcaConfig, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
 	menu := widgets.NewQMenu(w)
 
 	menu.AddAction("View Certificate Info").ConnectTriggered(func(checked bool) {
-		showCert(certName, "cert", config, app)
+		showCert(certName, serial, "cert", config, app)
 	})
 	menu.AddAction("View Certificate and Key").ConnectTriggered(func(checked bool) {
-		showCertKey(certName, "cert", config, app)
+		showCertKey(certName, serial, "cert", config, app)
 	})
-
+	menu.AddAction("Revoke Certificate").ConnectTriggered(func(checked bool) {
+		fmt.Println(serial)
+	})
 	menu.Exec2(event.GlobalPos().QPoint_PTR(), nil)
 
 }

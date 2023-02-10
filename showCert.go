@@ -11,8 +11,8 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
-func showCert(certName, certtype string, config ZcaConfig, app *widgets.QApplication) {
-	file := config.CertDir + "/" + certName + "/" + certName + ".pem"
+func showCert(certName, serial, certtype string, config ZcaConfig, app *widgets.QApplication) {
+	file := config.CertDir + "/" + serial + "/" + certName + ".pem"
 	if certtype == "root" {
 		file = config.RootDIR + "/" + certName + ".pem"
 	}

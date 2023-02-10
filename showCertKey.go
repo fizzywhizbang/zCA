@@ -9,10 +9,10 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
-func showCertKey(file, certtype string, config ZcaConfig, app *widgets.QApplication) {
+func showCertKey(file, serial, certtype string, config ZcaConfig, app *widgets.QApplication) {
 
-	fileCert := config.CertDir + "/" + file + "/" + file + ".pem"
-	fileKey := config.CertDir + "/" + file + "/" + file + "-key.pem"
+	fileCert := config.CertDir + "/" + serial + "/" + file + ".pem"
+	fileKey := config.CertDir + "/" + serial + "/" + file + "-key.pem"
 
 	if certtype == "root" {
 		fileCert = config.RootDIR + "/" + file + ".pem"

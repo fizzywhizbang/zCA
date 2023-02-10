@@ -46,7 +46,7 @@ func listCACerts(app *widgets.QApplication, window *widgets.QMainWindow) *widget
 	}
 	treeWidget.ConnectDoubleClicked(func(index *core.QModelIndex) {
 		certName := treeWidget.CurrentItem().Text(0)
-		showCert(certName, "root", config, app)
+		showCert(certName, "", "root", config, app)
 
 	})
 	treeWidget.ResizeColumnToContents(1)
@@ -85,10 +85,10 @@ func contextMenu2(certName string, config ZcaConfig, w *widgets.QMainWindow, app
 	menu := widgets.NewQMenu(w)
 
 	menu.AddAction("View Certificate Info").ConnectTriggered(func(checked bool) {
-		showCert(certName, "root", config, app)
+		showCert(certName, "", "root", config, app)
 	})
 	menu.AddAction("View Certificate and Key").ConnectTriggered(func(checked bool) {
-		showCertKey(certName, "root", config, app)
+		showCertKey(certName, "", "root", config, app)
 	})
 
 	menu.Exec2(event.GlobalPos().QPoint_PTR(), nil)
