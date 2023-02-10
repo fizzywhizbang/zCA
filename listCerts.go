@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -90,8 +89,8 @@ func readDates(file string) (string, string, string) {
 
 }
 
-func contextMenu(certName, serial string, config ZcaConfig, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
-	menu := widgets.NewQMenu(w)
+func contextMenu(certName, serial string, config ZcaConfig, window *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
+	menu := widgets.NewQMenu(window)
 
 	menu.AddAction("View Certificate Info").ConnectTriggered(func(checked bool) {
 		showCert(certName, serial, "cert", config, app)
@@ -100,7 +99,8 @@ func contextMenu(certName, serial string, config ZcaConfig, w *widgets.QMainWind
 		showCertKey(certName, serial, "cert", config, app)
 	})
 	menu.AddAction("Revoke Certificate").ConnectTriggered(func(checked bool) {
-		fmt.Println(serial)
+		revoke(serial, config)
+
 	})
 	menu.Exec2(event.GlobalPos().QPoint_PTR(), nil)
 

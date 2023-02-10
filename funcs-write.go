@@ -108,6 +108,51 @@ func mkLog(status string, y int, serial, filename, cname string, config ZcaConfi
 
 }
 
+func revoke(serial string, config ZcaConfig) {
+
+	crl := readCRL(config.CRL)
+
+	file, err := os.OpenFile(config.CRL, os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		fmt.Println("Could not open CRL")
+		return
+	}
+
+	defer file.Close()
+
+	/*
+		tab delimited always 6 columns openssl format
+			column0 (status): Valid Revoked or Expired (V,R,E)
+			column1 (currentTime + y): Expiration time
+			column2: revokation time if R is set
+			column3: Serial number (use serial number)
+			column4: filename of the certificate (use filename)
+			column5: certificate subject name (use CN)
+			Not all columns are used but a tab is there just in case
+			0   1(YYMMDD 00:00:01) 2  3                                   4       5
+	*/
+
+	revocationTime := time.Now().Format("060102000001")
+
+	for i := 0; i < len(crl); i++ {
+		if len(crl[i]) > 3 {
+			formatedString := crl[i][0] + "\t" + crl[i][1] + "\t" + "" + "\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
+			if serial == crl[i][3] {
+				status := "R"
+				formatedString = status + "\t" + crl[i][1] + "\t" + revocationTime + "\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
+			}
+			_, err2 := file.WriteString(formatedString)
+
+			if err2 != nil {
+				fmt.Println("Could not write text to example.txt")
+			}
+		}
+
+	}
+
+}
+
 func makeRootCert(key crypto.Signer, filename, caname string, C, S, L, O, OU []string, y int) (*x509.Certificate, error) {
 	serial, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 	if err != nil {
