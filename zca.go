@@ -3,6 +3,7 @@ package main
 import (
 	"crypto"
 	"crypto/x509"
+	"fmt"
 	"os"
 
 	"github.com/therecipe/qt/core"
@@ -22,9 +23,6 @@ func main() {
 	CkConfig()
 	app := widgets.NewQApplication(len(os.Args), os.Args)
 	window := mkWindow(app)
-
-	// config := ConfigParser()
-
 	mkgui(app, window)
 	app.Exec()
 }
@@ -48,7 +46,10 @@ func mkgui(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBo
 	verticalLayout.SetMenuBar(toolbar)
 
 	centralWidget.SetLayout(verticalLayout)
-
+	if GlobalForm == "" {
+		//show home view
+		verticalLayout.AddLayout(home(app, window), 0)
+	}
 	// make the window visible
 	window.Show()
 
@@ -63,73 +64,76 @@ func toolbarInit(app *widgets.QApplication, window *widgets.QMainWindow, toolbar
 	toolbar.AddWidget(label)
 
 	newSelector := widgets.NewQComboBox(nil)
-	items := []string{"Select Action", "List CA Certificates", "List Certificates", "New Root", "New Intermediate", "New Server/Client", "New User Certificate"}
+	items := []string{"Select Action", "List CA Certificates", "List Certificates", "New Root", "New Intermediate", "New Server/Client", "New User Certificate", "Config"}
 	newSelector.AddItems(items)
+	fmt.Println(GlobalForm)
+	newSelector.SetCurrentText(GlobalForm)
 
 	newSelector.ConnectCurrentTextChanged(func(text string) {
+
+		if text == "Select Action" || GlobalForm == "" {
+			//show home view
+			GlobalForm = text
+			centralWidget.DeleteLater()
+			vlayout2 := mkgui(app, window)
+			vlayout2.AddLayout(home(app, window), 0)
+		}
+
 		if text == "New User Certificate" {
+			GlobalForm = text
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(showUserForm(app, window), 0)
-			GlobalForm = text
+
 		}
 		if text == "List CA Certificates" {
+			GlobalForm = text
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(listCACerts(app, window), 0)
-			GlobalForm = text
 		}
 		if text == "List Certificates" {
+			GlobalForm = text
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(listCerts(app, window), 0)
-			GlobalForm = text
+
 		}
 		if text == "New Root" {
+			GlobalForm = text
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(showCAForm(app, window), 0)
-			GlobalForm = "New Root"
+
 		}
 		if text == "New Intermediate" {
+			GlobalForm = text
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(showCAIntForm(app, window), 0)
-			GlobalForm = text
+
 		}
 
 		if text == "New Server/Client" {
+			GlobalForm = text
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(showServerForm(app, window), 0)
-			GlobalForm = "New Server/Client"
+
 		}
 
-		window.Show()
-	})
-	toolbar.AddWidget(newSelector)
-
-	// showCerts := widgets.NewQPushButton2("List Certs", nil)
-	// toolbar.AddWidget(showCerts)
-	// showCerts.ConnectClicked(func(checked bool) {
-	// 	if GlobalForm != "LC" {
-	// 		centralWidget.DeleteLater()
-	// 		vlayout2 := mkgui(app, window)
-	// 		vlayout2.AddLayout(listCerts(app, window), 0)
-	// 		GlobalForm = "LC"
-	// 	}
-	// })
-
-	showConfig := widgets.NewQPushButton2("Config", nil)
-	toolbar.AddWidget(showConfig)
-	showConfig.ConnectClicked(func(checked bool) {
-		if GlobalForm != "C" {
+		if text == "Config" {
+			GlobalForm = text
 			centralWidget.DeleteLater()
 			vlayout2 := mkgui(app, window)
 			vlayout2.AddLayout(configEdit(app, window), 0)
-			GlobalForm = "C"
+
 		}
+
+		window.Show()
+
 	})
+	toolbar.AddWidget(newSelector)
 
 	return toolbar
 }

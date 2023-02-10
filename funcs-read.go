@@ -32,6 +32,11 @@ func fileExists(filename string) bool {
 	return !info.IsDir()
 }
 
+func getRootCt(dir string) int {
+	files, _ := ioutil.ReadDir(dir)
+	return len(files)
+}
+
 func getCas() []string {
 	config := ConfigParser()
 
