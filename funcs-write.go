@@ -258,8 +258,13 @@ func intermediate(iss *issuer, cn string, y int, C, S, L, O, OU []string, config
 }
 
 func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []string, config ZcaConfig) (*x509.Certificate, error) {
-	var cnFolder = config.CertDir + "/" + strings.Replace(cn, "*", "_", -1)
-	err := os.Mkdir(cnFolder, 0700)
+	serial, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
+	fmt.Println("Gen Serial")
+	if err != nil {
+		return nil, err
+	}
+	var cnFolder = config.CertDir + "/" + serial.String()
+	err = os.Mkdir(cnFolder, 0700)
 	if err != nil && !os.IsExist(err) {
 		return nil, err
 	}
@@ -272,11 +277,7 @@ func sign(iss *issuer, cn string, y int, domains, ipAddresses, C, S, L, O, OU []
 	if err != nil {
 		return nil, err
 	}
-	serial, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
-	fmt.Println("Gen Serial")
-	if err != nil {
-		return nil, err
-	}
+
 	template := &x509.Certificate{
 		DNSNames:    domains,
 		IPAddresses: parsedIPs,
