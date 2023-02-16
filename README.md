@@ -21,4 +21,6 @@ Your root and intermediate certs will be stored under root and any other certs y
 You can have more than one root CA if you deisre  
   
 I am still working on this and this program will be able to create multiple types of certificates  
-OCSP repsonder will be separate but built to read from this program if you need one
+
+## OCSP Responder
+forked from https://github.com/WestPowerData/GOCSP-responder and you can find the updated version that is tested and working with this CA here https://github.com/fizzywhizbang/GOCSP-responder  
