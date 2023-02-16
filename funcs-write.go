@@ -96,9 +96,10 @@ func mkLog(status string, y int, serial, filename, cname string, config ZcaConfi
 	revocationTime := ""
 	if status == "R" {
 		revocationTime = time.Now().Format("060102000001")
+		revocationTime = revocationTime + "Z"
 	}
 
-	formatedString := status + "\t" + notBefore + "\t" + revocationTime + "\t" + serial + "\t" + filename + "\t" + cname + "\n"
+	formatedString := status + "\t" + notBefore + "Z\t" + revocationTime + "\t" + serial + "\t" + filename + "\t" + cname + "\n"
 
 	_, err2 := file.WriteString(formatedString)
 
@@ -137,10 +138,10 @@ func revoke(serial string, config ZcaConfig) {
 
 	for i := 0; i < len(crl); i++ {
 		if len(crl[i]) > 3 {
-			formatedString := crl[i][0] + "\t" + crl[i][1] + "Z\t" + "" + "\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
+			formatedString := crl[i][0] + "\t" + crl[i][1] + "\t" + "" + "\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
 			if serial == crl[i][3] {
 				status := "R"
-				formatedString = status + "\t" + crl[i][1] + "Z\t" + revocationTime + "Z\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
+				formatedString = status + "\t" + crl[i][1] + "\t" + revocationTime + "Z\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
 			}
 			_, err2 := file.WriteString(formatedString)
 
@@ -177,7 +178,7 @@ func makeRootCert(key crypto.Signer, filename, caname string, C, S, L, O, OU []s
 
 		SubjectKeyId:          skid,
 		AuthorityKeyId:        skid,
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 		BasicConstraintsValid: true,
 		IsCA:                  true,
@@ -228,7 +229,7 @@ func intermediate(iss *issuer, cn string, y int, C, S, L, O, OU []string, config
 		NotBefore:    time.Now(),
 		NotAfter:     time.Now().AddDate(y, 0, 0),
 
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 		BasicConstraintsValid: true,
 		IsCA:                  true,
