@@ -137,10 +137,10 @@ func revoke(serial string, config ZcaConfig) {
 
 	for i := 0; i < len(crl); i++ {
 		if len(crl[i]) > 3 {
-			formatedString := crl[i][0] + "\t" + crl[i][1] + "\t" + "" + "\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
+			formatedString := crl[i][0] + "\t" + crl[i][1] + "Z\t" + "" + "\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
 			if serial == crl[i][3] {
 				status := "R"
-				formatedString = status + "\t" + crl[i][1] + "\t" + revocationTime + "\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
+				formatedString = status + "\t" + crl[i][1] + "Z\t" + revocationTime + "Z\t" + crl[i][3] + "\t" + crl[i][4] + "\t" + crl[i][5] + "\n"
 			}
 			_, err2 := file.WriteString(formatedString)
 
