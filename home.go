@@ -1,42 +1,42 @@
 package main
 
-import "github.com/therecipe/qt/widgets"
+import qt "github.com/mappu/miqt/qt6"
 
-func home(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBoxLayout {
+func home(app *qt.QApplication, window *qt.QMainWindow) *qt.QVBoxLayout {
 	config := ConfigParser()
 
-	verticalLayout := widgets.NewQVBoxLayout()
-	formLayout := widgets.NewQFormLayout(nil)
+	verticalLayout := qt.NewQVBoxLayout(nil)
+	formLayout := qt.NewQFormLayout(nil)
 
 	if getRootCt(config.RootDIR) == 0 {
-		warningText := widgets.NewQLabel(nil, 0)
+		warningText := qt.NewQLabel(nil)
 		style := "color:#FF0000; font-size: 12px;"
 		warningText.SetStyleSheet(style)
 		warningText.SetText("You need to create a root certificate authority before begining")
-		formLayout.AddRow5(warningText)
+		formLayout.AddRowWithWidget(warningText.QWidget)
 
 	}
 
-	rootText := widgets.NewQLineEdit(nil)
+	rootText := qt.NewQLineEdit(nil)
 	rootText.SetText(config.RootDIR)
 	rootText.SetFixedWidth(580)
-	formLayout.AddRow3("Root Certificate Directory: ", rootText)
+	formLayout.AddRow3("Root Certificate Directory: ", rootText.QWidget)
 
-	certText := widgets.NewQLineEdit(nil)
+	certText := qt.NewQLineEdit(nil)
 	certText.SetText(config.CertDir)
 	certText.SetFixedWidth(580)
-	formLayout.AddRow3("Certificate Directory: ", certText)
+	formLayout.AddRow3("Certificate Directory: ", certText.QWidget)
 
-	ocspText := widgets.NewQLineEdit(nil)
+	ocspText := qt.NewQLineEdit(nil)
 	ocspText.SetText(config.OCSP)
 	ocspText.SetFixedWidth(580)
-	formLayout.AddRow3("OCSP URL: ", ocspText)
+	formLayout.AddRow3("OCSP URL: ", ocspText.QWidget)
 
-	crlText := widgets.NewQLineEdit(nil)
+	crlText := qt.NewQLineEdit(nil)
 	crlText.SetText(config.CRL)
 	crlText.SetFixedWidth(580)
-	formLayout.AddRow3("CRL Location: ", crlText)
+	formLayout.AddRow3("CRL Location: ", crlText.QWidget)
 
-	verticalLayout.AddLayout(formLayout, 0)
+	verticalLayout.AddLayout(formLayout.QLayout)
 	return verticalLayout
 }

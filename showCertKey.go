@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
-func showCertKey(file, serial, certtype string, config ZcaConfig, app *widgets.QApplication) {
+func showCertKey(file, serial, certtype string, config ZcaConfig, app *qt.QApplication) {
 
 	fileCert := config.CertDir + "/" + serial + "/" + file + ".pem"
 	fileKey := config.CertDir + "/" + serial + "/" + file + "-key.pem"
@@ -32,25 +30,25 @@ func showCertKey(file, serial, certtype string, config ZcaConfig, app *widgets.Q
 
 	//create new window
 	window := mkWindow(app)
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(*qt.QKeyEvent), event *qt.QKeyEvent) {
+		if int32(event.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
-	centralWidget := widgets.NewQWidget(nil, 0)
+	centralWidget := qt.NewQWidget(nil)
 	window.SetCentralWidget(centralWidget)
-	verticalLayout := widgets.NewQVBoxLayout()
+	verticalLayout := qt.NewQVBoxLayout(nil)
 
-	textBoxCert := widgets.NewQTextEdit(nil)
+	textBoxCert := qt.NewQTextEdit(nil)
 	textBoxCert.SetText(string(cert))
-	verticalLayout.AddWidget(textBoxCert, 0, 0)
+	verticalLayout.AddWidget(textBoxCert.QWidget)
 
-	textBoxKey := widgets.NewQTextEdit(nil)
+	textBoxKey := qt.NewQTextEdit(nil)
 	textBoxKey.SetText(string(key))
-	verticalLayout.AddWidget(textBoxKey, 0, 0)
+	verticalLayout.AddWidget(textBoxKey.QWidget)
 
-	centralWidget.SetLayout(verticalLayout)
+	centralWidget.SetLayout(verticalLayout.QLayout)
 
 	// make the window visible
 	window.Show()

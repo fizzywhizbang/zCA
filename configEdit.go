@@ -1,57 +1,57 @@
 package main
 
-import "github.com/therecipe/qt/widgets"
+import qt "github.com/mappu/miqt/qt6"
 
-func configEdit(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBoxLayout {
+func configEdit(app *qt.QApplication, window *qt.QMainWindow) *qt.QVBoxLayout {
 	config := ConfigParser()
 
-	verticalLayout := widgets.NewQVBoxLayout()
-	formLayout := widgets.NewQFormLayout(nil)
-	rootText := widgets.NewQLineEdit(nil)
+	verticalLayout := qt.NewQVBoxLayout(nil)
+	formLayout := qt.NewQFormLayout(nil)
+	rootText := qt.NewQLineEdit(nil)
 	rootText.SetText(config.RootDIR)
 	rootText.SetFixedWidth(580)
-	formLayout.AddRow3("Root Certificate Directory: ", rootText)
+	formLayout.AddRow3("Root Certificate Directory: ", rootText.QWidget)
 
-	certText := widgets.NewQLineEdit(nil)
+	certText := qt.NewQLineEdit(nil)
 	certText.SetText(config.CertDir)
 	certText.SetFixedWidth(580)
-	formLayout.AddRow3("Certificate Directory: ", certText)
+	formLayout.AddRow3("Certificate Directory: ", certText.QWidget)
 
-	ocspText := widgets.NewQLineEdit(nil)
+	ocspText := qt.NewQLineEdit(nil)
 	ocspText.SetText(config.OCSP)
 	ocspText.SetFixedWidth(580)
-	formLayout.AddRow3("OCSP URL: ", ocspText)
+	formLayout.AddRow3("OCSP URL: ", ocspText.QWidget)
 
-	crlText := widgets.NewQLineEdit(nil)
+	crlText := qt.NewQLineEdit(nil)
 	crlText.SetText(config.CRL)
 	crlText.SetFixedWidth(580)
-	formLayout.AddRow3("CRL Location: ", crlText)
+	formLayout.AddRow3("CRL Location: ", crlText.QWidget)
 
-	optionGroup := widgets.NewQHBoxLayout()
+	optionGroup := qt.NewQHBoxLayout(nil)
 
 	//add button
-	savButton := widgets.NewQPushButton(nil)
+	savButton := qt.NewQPushButton(nil)
 	savButton.SetText("Save")
-	savButton.ConnectClicked(func(checked bool) {
+	savButton.OnClicked(func() {
 		if updateConfig(rootText.Text(), certText.Text(), ocspText.Text(), crlText.Text()) {
-			widgets.QMessageBox_Information(nil, "Saved", "Updated Configuration File\nBe sure to restart the program to apply the new settings", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Information(nil, "Saved", "Updated Configuration File\nBe sure to restart the program to apply the new settings")
 		} else {
-			widgets.QMessageBox_Warning(nil, "Warning", "Something went wrong, I need my meds", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Warning(nil, "Warning", "Something went wrong, I need my meds")
 		}
 	})
-	optionGroup.AddWidget(savButton, 0, 0)
+	optionGroup.AddWidget(savButton.QWidget)
 
 	//cancel button
-	cancelButton := widgets.NewQPushButton(nil)
+	cancelButton := qt.NewQPushButton(nil)
 	cancelButton.SetText("Cancel")
-	cancelButton.ConnectClicked(func(checked bool) {
+	cancelButton.OnClicked(func() {
 		window.Close()
 		GlobalForm = ""
 		mkgui(app, window)
 	})
-	optionGroup.AddWidget(cancelButton, 0, 0)
-	formLayout.InsertRow6(5, optionGroup)
+	optionGroup.AddWidget(cancelButton.QWidget)
+	formLayout.InsertRow6(5, optionGroup.QLayout)
 
-	verticalLayout.AddLayout(formLayout, 0)
+	verticalLayout.AddLayout(formLayout.QLayout)
 	return verticalLayout
 }

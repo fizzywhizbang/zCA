@@ -3,21 +3,19 @@ package main
 import (
 	"crypto/x509"
 	"encoding/pem"
-	"io/ioutil"
 	"log"
+	"os"
 
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
-func showCert(certName, serial, certtype string, config ZcaConfig, app *widgets.QApplication) {
+func showCert(certName, serial, certtype string, config ZcaConfig, app *qt.QApplication) {
 	file := config.CertDir + "/" + serial + "/" + certName + ".pem"
 	if certtype == "root" {
 		file = config.RootDIR + "/" + certName + ".pem"
 	}
 	// Read and parse the PEM certificate file
-	pemData, err := ioutil.ReadFile(file)
+	pemData, err := os.ReadFile(file)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,21 +30,21 @@ func showCert(certName, serial, certtype string, config ZcaConfig, app *widgets.
 
 	//create new window
 	window := mkWindow(app)
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(*qt.QKeyEvent), event *qt.QKeyEvent) {
+		if int32(event.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
-	centralWidget := widgets.NewQWidget(nil, 0)
+	centralWidget := qt.NewQWidget(nil)
 	window.SetCentralWidget(centralWidget)
-	verticalLayout := widgets.NewQVBoxLayout()
+	verticalLayout := qt.NewQVBoxLayout(nil)
 
-	textBox := widgets.NewQTextEdit(nil)
+	textBox := qt.NewQTextEdit(nil)
 	text, _ := CertificateText(cert)
 	textBox.SetText(text)
-	verticalLayout.AddWidget(textBox, 0, 0)
-	centralWidget.SetLayout(verticalLayout)
+	verticalLayout.AddWidget(textBox.QWidget)
+	centralWidget.SetLayout(verticalLayout.QLayout)
 
 	// make the window visible
 	window.Show()

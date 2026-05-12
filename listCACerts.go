@@ -4,26 +4,24 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
-func listCACerts(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QVBoxLayout {
+func listCACerts(app *qt.QApplication, window *qt.QMainWindow) *qt.QVBoxLayout {
 	config := ConfigParser()
-	verticalLayout := widgets.NewQVBoxLayout()
+	verticalLayout := qt.NewQVBoxLayout(nil)
 
-	treeWidget := widgets.NewQTreeWidget(nil)
+	treeWidget := qt.NewQTreeWidget(nil)
 
-	verticalLayout.AddWidget(treeWidget, 0, 0)
+	verticalLayout.AddWidget(treeWidget.QWidget)
 	treeWidget.SetColumnCount(3)
-	treeWidget.SetObjectName("treewidget")
+	treeWidget.SetObjectName(*qt.NewQAnyStringView3("treewidget"))
 	treeWidget.Header().SetSectionsClickable(true)
 	treeWidget.SetSortingEnabled(true)
-	treeWidget.SortByColumn(0, core.Qt__SortOrder(0))
+	treeWidget.SortByColumn(0, qt.SortOrder(0))
 	treeWidget.SetAlternatingRowColors(true)
 	treeWidget.HorizontalScrollBar().SetHidden(true)
 	tableColors := "alternate-background-color: #88DD88; background-color:#FFFFFF; color:#000000; font-size: 12px;"
@@ -40,11 +38,11 @@ func listCACerts(app *widgets.QApplication, window *widgets.QMainWindow) *widget
 		// notBefore := ""
 		// notAfter := ""
 
-		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{val, notBefore, notAfter}, 0)
-		treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(val))
+		treewidgetItem := qt.NewQTreeWidgetItem2([]string{val, notBefore, notAfter})
+		treewidgetItem.SetData(0, int(qt.UserRole), qt.NewQVariant11(val))
 		treeWidget.AddTopLevelItem(treewidgetItem)
 	}
-	treeWidget.ConnectDoubleClicked(func(index *core.QModelIndex) {
+	treeWidget.OnDoubleClicked(func(index *qt.QModelIndex) {
 		certName := treeWidget.CurrentItem().Text(0)
 		showCert(certName, "", "root", config, app)
 
@@ -53,7 +51,7 @@ func listCACerts(app *widgets.QApplication, window *widgets.QMainWindow) *widget
 	treeWidget.ResizeColumnToContents(2)
 	treeWidget.SetColumnWidth(0, 400)
 
-	treeWidget.ConnectContextMenuEvent(func(event *gui.QContextMenuEvent) {
+	treeWidget.OnContextMenuEvent(func(super func(event *qt.QContextMenuEvent), event *qt.QContextMenuEvent) {
 		certName := treeWidget.CurrentItem().Text(0)
 		contextMenu2(certName, config, window, app, event)
 	})
@@ -63,7 +61,7 @@ func listCACerts(app *widgets.QApplication, window *widgets.QMainWindow) *widget
 
 func readDates2(file string) (string, string) {
 	// Read and parse the PEM certificate file
-	pemData, err := ioutil.ReadFile(file)
+	pemData, err := os.ReadFile(file)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -81,16 +79,16 @@ func readDates2(file string) (string, string) {
 
 }
 
-func contextMenu2(certName string, config ZcaConfig, w *widgets.QMainWindow, app *widgets.QApplication, event *gui.QContextMenuEvent) {
-	menu := widgets.NewQMenu(w)
+func contextMenu2(certName string, config ZcaConfig, w *qt.QMainWindow, app *qt.QApplication, event *qt.QContextMenuEvent) {
+	menu := qt.NewQMenu(w.QWidget)
 
-	menu.AddAction("View Certificate Info").ConnectTriggered(func(checked bool) {
+	menu.AddActionWithText("View Certificate Info").OnTriggered(func() {
 		showCert(certName, "", "root", config, app)
 	})
-	menu.AddAction("View Certificate and Key").ConnectTriggered(func(checked bool) {
+	menu.AddActionWithText("View Certificate and Key").OnTriggered(func() {
 		showCertKey(certName, "", "root", config, app)
 	})
 
-	menu.Exec2(event.GlobalPos().QPoint_PTR(), nil)
+	menu.ExecWithPos(event.GlobalPos().ToPointF().ToPoint())
 
 }

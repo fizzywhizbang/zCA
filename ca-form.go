@@ -4,71 +4,71 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
-func showCAForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets.QFormLayout {
+func showCAForm(app *qt.QApplication, window *qt.QMainWindow) *qt.QFormLayout {
 	config := ConfigParser()
-	formLayout := widgets.NewQFormLayout(nil)
-	formLayout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
-	label := widgets.NewQLabel2("Create New Root Certificate Authority", nil, 0)
-	formLayout.AddWidget(label)
-	C := widgets.NewQLineEdit(nil)
+	formLayout := qt.NewQFormLayout(nil)
+	formLayout.SetFieldGrowthPolicy(qt.QFormLayout__ExpandingFieldsGrow)
+	label := qt.NewQLabel3("Create New Root Certificate Authority")
+	formLayout.AddWidget(label.QWidget)
+	C := qt.NewQLineEdit(nil)
 	C.SetPlaceholderText("US")
-	formLayout.AddRow3("Country (two letter): ", C)
+	formLayout.AddRow3("Country (two letter): ", C.QWidget)
 
-	S := widgets.NewQLineEdit(nil)
+	S := qt.NewQLineEdit(nil)
 	S.SetPlaceholderText("CA")
-	formLayout.AddRow3("Province/State (two letter): ", S)
+	formLayout.AddRow3("Province/State (two letter): ", S.QWidget)
 
-	L := widgets.NewQLineEdit(nil)
+	L := qt.NewQLineEdit(nil)
 	L.SetPlaceholderText("Los Angeles")
-	formLayout.AddRow3("Locality: ", L)
+	formLayout.AddRow3("Locality: ", L.QWidget)
 
-	O := widgets.NewQLineEdit(nil)
+	O := qt.NewQLineEdit(nil)
 	O.SetPlaceholderText("Widgets INTL")
-	formLayout.AddRow3("Organization: ", O)
+	formLayout.AddRow3("Organization: ", O.QWidget)
 
-	OU := widgets.NewQLineEdit(nil)
+	OU := qt.NewQLineEdit(nil)
 	OU.SetPlaceholderText("Widgets Web Services")
-	formLayout.AddRow3("Organizational Unit: ", OU)
+	formLayout.AddRow3("Organizational Unit: ", OU.QWidget)
 
-	CN := widgets.NewQLineEdit(nil)
+	CN := qt.NewQLineEdit(nil)
 	CN.SetPlaceholderText("Widgets International")
-	formLayout.AddRow3("Common Name: ", CN)
+	formLayout.AddRow3("Common Name: ", CN.QWidget)
 
-	CName := widgets.NewQLineEdit(nil)
-	CName.SetPlaceholderText("root.widgets.com")
-	formLayout.AddRow3("Certificate Name: ", CName)
+	CName := qt.NewQLineEdit(nil)
+	CName.SetPlaceholderText("root.qt.com")
+	formLayout.AddRow3("Certificate Name: ", CName.QWidget)
 
-	age := widgets.NewQComboBox(nil)
+	age := qt.NewQComboBox(nil)
 	age.AddItems([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"})
-	formLayout.AddRow3("Age (years): ", age)
+	formLayout.AddRow3("Age (years): ", age.QWidget)
 
-	optionGroup := widgets.NewQHBoxLayout()
+	optionGroup := qt.NewQHBoxLayout(nil)
 
 	//add button
-	addButton := widgets.NewQPushButton(nil)
+	addButton := qt.NewQPushButton(nil)
 	addButton.SetText("Add")
-	optionGroup.AddWidget(addButton, 0, 0)
+	optionGroup.AddWidget(addButton.QWidget)
 	//cancel button
-	cancelButton := widgets.NewQPushButton(nil)
+	cancelButton := qt.NewQPushButton(nil)
 	cancelButton.SetText("Cancel")
-	optionGroup.AddWidget(cancelButton, 0, 0)
+	optionGroup.AddWidget(cancelButton.QWidget)
 
-	formLayout.InsertRow6(8, optionGroup)
+	formLayout.InsertRow6(8, optionGroup.QLayout)
 
-	cancelButton.ConnectClicked(func(checked bool) {
+	cancelButton.OnClicked(func() {
 		window.Close()
 		GlobalForm = ""
 		mkgui(app, window)
 	})
-	addButton.ConnectClicked(func(checked bool) {
+	addButton.OnClicked(func() {
 		if len(CName.Text()) >= 1 && len(CN.Text()) >= 1 {
 			//check if file exists
 			f := config.RootDIR + "/" + CName.Text() + ".pem"
 			if fileExists(f) {
-				widgets.QMessageBox_Critical(nil, "error", "A CA by that name already exists", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+				qt.QMessageBox_Critical(nil, "error", "A CA by that name already exists")
 			} else {
 				//create new ca
 				caKey := config.RootDIR + "/" + CName.Text() + "-key.pem"
@@ -103,7 +103,7 @@ func showCAForm(app *widgets.QApplication, window *widgets.QMainWindow) *widgets
 
 			}
 		} else {
-			widgets.QMessageBox_Critical(nil, "error", "You must supply a common name and a root CA name", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Critical(nil, "error", "You must supply a common name and a root CA name")
 		}
 	})
 
