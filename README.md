@@ -11,8 +11,8 @@ Really just throwing a graphical interface on tools that exist in go (lipstick o
 ## How it works
 Install go  
 Install github.com/mappu/miqt/qt6  
-Download this source 
-go mod tidy 
+Download this source   
+go mod tidy   
 type go run .  
 If using a mac download the latest release (I will do my best to update this every time I release new code)
   
